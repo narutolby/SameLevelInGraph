@@ -15,6 +15,9 @@ import java.util.*;
 public class SameLevel {
     //n为节点个数，e为有向边个数
     private static int n,e;
+    //缓存连通图两点是否任意路径可达
+    private static Set<Edge<Character>> cacheSet = new HashSet<Edge<Character>>();
+
     //有向图正向临接表
     private static Map<Character,LinkedList<Character>> adjacencyMap = new HashMap<Character,LinkedList<Character>>();
     //有向图反向临接表
@@ -45,7 +48,7 @@ public class SameLevel {
       * 判断a是否从任意路径可达b
       */
     public static boolean DFSTraverseAtoB(char a ,char b){
-    	if(a == b)  return true;
+    	if(a == b || cacheSet.contains(new Edge<Character>(a,b)))  return true;
         boolean ret = false;
         LinkedList<Character> adjacentList =  adjacencyMap.get(a);
         for(char c : adjacentList){
@@ -53,6 +56,7 @@ public class SameLevel {
                 return false;
             }
             ret = true;
+            cacheSet.add(new Edge<Character>(c,b));
         }
         return ret;
     }
@@ -81,7 +85,7 @@ public class SameLevel {
         set.add(new Edge<Character>('b','d'));
         set.add(new Edge<Character>('d','e'));
         set.add(new Edge<Character>('c','d'));
-        System.out.println(isSameLevel('a','d',set));
+        System.out.println(isSameLevel('a','c',set));
 
     }
 
@@ -116,5 +120,24 @@ public class SameLevel {
              this.end = end;
         }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Edge edge = (Edge) o;
+
+            if (end != null ? !end.equals(edge.end) : edge.end != null) return false;
+            if (start != null ? !start.equals(edge.start) : edge.start != null) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = start != null ? start.hashCode() : 0;
+            result = 31 * result + (end != null ? end.hashCode() : 0);
+            return result;
+        }
     }
 }

@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="SameLevel:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <root id="archive" name="SameLevel-1.0-SNAPSHOT.war">
+      <element id="artifact" artifact-name="SameLevel:war exploded" />
+    </root>
+  </artifact>
+</component>
