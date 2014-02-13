@@ -4,7 +4,7 @@ import java.util.*;
 
 
 /**
- * @author huyang01
+ * @author narutolby
  *
  * @since 2013-01-10
  *
@@ -77,13 +77,14 @@ public class SameLevel {
         boolean  ret = false,ret1 = false;
         ret = DFSTraverseAtoB(a ,b,true);
         swapMap();
-       // adjacencyMap = adjacencyReverseMap;
         //有向图反向再判断一次
         ret1 = DFSTraverseAtoB(b,a ,false);
         swapMap();
-       // swap(adjacencyMap,adjacencyReverseMap);
         return ret && ret1;
     }
+    /*
+     * adjacencyMap与 adjacencyReverseMap交换
+     */
    private void swapMap(){
         Map<Character,LinkedList<Character>> tmp = adjacencyReverseMap;
         adjacencyReverseMap = adjacencyMap;
