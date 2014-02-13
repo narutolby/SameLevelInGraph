@@ -5,25 +5,33 @@ import java.util.*;
 
 /**
  * @author huyang01
- * 
+ *
  * @since 2013-01-10
- * 
+ *
  * 算法核心思想：
  * a的数据流必经过b的深刻含义为，a的数据流无论从哪条路走都必须经过b，这就要求a的相邻节点也具有该特性；
  * 同理将有向图反向，b的数据流也必经过a
  */
 public class SameLevel {
     //n为节点个数，e为有向边个数
-    private static int n,e;
+    private int n,e;
     //缓存连通图两点是否任意路径可达
-    private static Set<Edge<Character>> cacheSet = new HashSet<Edge<Character>>();
-
+    private Set<Edge<Character>> cacheSet = new HashSet<Edge<Character>>();
     //有向图正向临接表
-    private static Map<Character,LinkedList<Character>> adjacencyMap = new HashMap<Character,LinkedList<Character>>();
+    private Map<Character,LinkedList<Character>> adjacencyMap = new HashMap<Character,LinkedList<Character>>();
     //有向图反向临接表
-    private static Map<Character,LinkedList<Character>> adjacencyReverseMap = new HashMap<Character,LinkedList<Character>>();
+    private Map<Character,LinkedList<Character>> adjacencyReverseMap = new HashMap<Character,LinkedList<Character>>();
+    /*
+     * 构造方法，用来有向联通图图
+     */
+    public SameLevel(Set<Edge<Character>>set){
+       boolean created = createGraph(set);
+        if(!created){
+            throw new RuntimeException("Error!");
+        }
+    }
     //填充正向与反向临接表
-    private static void fullMap(Map<Character,LinkedList<Character>> map,Character a,Character b){
+    private void fullMap(Map<Character,LinkedList<Character>> map,Character a,Character b){
         if(!map.containsKey(a)){
             map.put(a,new LinkedList<Character>());
         }
@@ -35,7 +43,7 @@ public class SameLevel {
    /*
     * 根据输入的map创建图
     */
-    public static boolean createGraph(Set<Edge<Character>> set){
+    private boolean createGraph(Set<Edge<Character>> set){
         if(set == null || set.size() == 0) return false;
         for(Edge<Character> edge : set){
             Character key = edge.getStart(),value = edge.getEnd();
@@ -47,45 +55,54 @@ public class SameLevel {
      /*
       * 判断a是否从任意路径可达b
       */
-    public static boolean DFSTraverseAtoB(char a ,char b){
+    private boolean DFSTraverseAtoB(char a ,char b ,boolean isCached){
     	if(a == b || cacheSet.contains(new Edge<Character>(a,b)))  return true;
         boolean ret = false;
         LinkedList<Character> adjacentList =  adjacencyMap.get(a);
         for(char c : adjacentList){
-            if(!DFSTraverseAtoB(c,b)){
+            if(!DFSTraverseAtoB(c,b,isCached)){
                 return false;
             }
             ret = true;
-            cacheSet.add(new Edge<Character>(c,b));
+           // if(isCached) cacheSet.add(new Edge<Character>(c,b));
         }
+       if(ret && isCached) cacheSet.add(new Edge<Character>(a,b));
         return ret;
     }
     /*
      * 判断两个节点是否是同一层次
      */
-    public static boolean isSameLevel(char a ,char b, Set<Edge<Character>> set){
-        if(set == null || set.size() == 0) return false;
-        boolean  ret = false,ret1 = false,created = createGraph(set);
-        if(!created || !adjacencyMap.containsKey(a) || !adjacencyMap.containsKey(b)){
-            throw new RuntimeException("Error!");
-        }
-        ret = DFSTraverseAtoB(a ,b);
-        adjacencyMap = adjacencyReverseMap;
+    public boolean isSameLevel(char a ,char b){
+        if(!adjacencyMap.containsKey(a) || !adjacencyMap.containsKey(b)) return false;
+        boolean  ret = false,ret1 = false;
+        ret = DFSTraverseAtoB(a ,b,true);
+        swapMap();
+       // adjacencyMap = adjacencyReverseMap;
         //有向图反向再判断一次
-        ret1 = DFSTraverseAtoB(b,a);
+        ret1 = DFSTraverseAtoB(b,a ,false);
+        swapMap();
+       // swap(adjacencyMap,adjacencyReverseMap);
         return ret && ret1;
     }
-     /*
-      *
-      */
+   private void swapMap(){
+        Map<Character,LinkedList<Character>> tmp = adjacencyReverseMap;
+        adjacencyReverseMap = adjacencyMap;
+        adjacencyMap = tmp;
+    }
     public static void main(String[]args){
         Set<Edge<Character>> set = new HashSet<Edge<Character>>();
-        set.add(new Edge<Character>('a','b'));
-        set.add(new Edge<Character>('b','c'));
-        set.add(new Edge<Character>('b','d'));
-        set.add(new Edge<Character>('d','e'));
-        set.add(new Edge<Character>('c','d'));
-        System.out.println(isSameLevel('a','c',set));
+        set.add(new Edge<Character>('0','1'));
+        set.add(new Edge<Character>('1','2'));
+        set.add(new Edge<Character>('1','3'));
+        set.add(new Edge<Character>('2','3'));
+        set.add(new Edge<Character>('3','4'));
+        SameLevel sl = new SameLevel(set);
+        System.out.println(sl.isSameLevel('0', '1'));
+        System.out.println(sl.isSameLevel('1', '0'));
+        System.out.println(sl.isSameLevel('1', '3'));
+        System.out.println(sl.isSameLevel('1', '4'));
+        System.out.println(sl.isSameLevel('2', '4'));
+        System.out.println(sl.isSameLevel('2', '3'));
 
     }
 
